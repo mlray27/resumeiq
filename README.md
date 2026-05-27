@@ -13,7 +13,7 @@ A full-stack web application that analyzes your resume against a job description
 - **Bullet Rewrites** — suggests improved, impact-driven versions of your bullets
 - **ATS Tips** — actionable advice to pass Applicant Tracking Systems
 - **PDF Upload** — supports direct resume PDF upload
-- **Clean UI** — dark-themed, responsive React frontend
+- **Clean UI** — Fun pastel themed, responsive React frontend
 
 ---
 
