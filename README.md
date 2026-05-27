@@ -1,4 +1,4 @@
-# ⚡ ResumeIQ — AI-Powered Resume Analyzer
+# ⚡ ResumeIQ - AI-Powered Resume Analyzer
 
 A full-stack web application that analyzes your resume against a job description using the Anthropic Claude API. Get a match score, identify missing keywords, receive rewritten bullet points, and ATS optimization tips — instantly.
 
