@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import "./App.css";
+import "./jobs.css";
+import Jobs from "./Jobs.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -79,15 +81,16 @@ function Section({ title, joke, icon, children }) {
 }
 
 export default function App() {
-  const [jd, setJd] = useState("");
-  const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab]   = useState("analyzer");
+  const [jd, setJd]                 = useState("");
+  const [file, setFile]             = useState(null);
+  const [loading, setLoading]       = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
-  const [dragOver, setDragOver] = useState(false);
-  const [emptyJoke] = useState(EMPTY_JOKES[Math.floor(Math.random() * EMPTY_JOKES.length)]);
-  const fileRef = useRef();
+  const [result, setResult]         = useState(null);
+  const [error, setError]           = useState("");
+  const [dragOver, setDragOver]     = useState(false);
+  const [emptyJoke]                 = useState(EMPTY_JOKES[Math.floor(Math.random() * EMPTY_JOKES.length)]);
+  const fileRef    = useRef();
   const loadingRef = useRef(null);
 
   const handleFile = (f) => {
@@ -147,146 +150,165 @@ export default function App() {
         <p className="tagline-sub">AI-powered resume analysis · powered by desperation and machine learning</p>
       </header>
 
-      <main className="main">
-        <div className="input-panel">
+      {/* Nav Tabs */}
+      <div className="nav-tabs">
+        <button
+          className={`nav-tab ${activeTab === "analyzer" ? "active" : ""}`}
+          onClick={() => setActiveTab("analyzer")}
+        >⚡ Resume Analyzer</button>
+        <button
+          className={`nav-tab ${activeTab === "jobs" ? "active" : ""}`}
+          onClick={() => setActiveTab("jobs")}
+        >🎯 Job Matches</button>
+      </div>
 
-          <div className="input-card">
-            <label className="input-label">
-              <span className="label-num">01</span>
-              the job you're manifesting
-            </label>
-            <textarea
-              className="jd-input"
-              placeholder="paste the job description here. yes, requirements too. especially the ones that say '10 years of experience in a 3-year-old framework'..."
-              value={jd}
-              onChange={(e) => setJd(e.target.value)}
-              rows={12}
-            />
-          </div>
-
-          <div className="input-card">
-            <label className="input-label">
-              <span className="label-num">02</span>
-              your resume (it'll be okay)
-            </label>
-            <div
-              className={`dropzone ${dragOver ? "drag-over" : ""} ${file ? "has-file" : ""}`}
-              onClick={() => fileRef.current.click()}
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileRef} type="file" accept=".pdf,.txt"
-                style={{ display: "none" }}
-                onChange={(e) => handleFile(e.target.files[0])}
+      {/* Analyzer Tab */}
+      {activeTab === "analyzer" && (
+        <main className="main">
+          <div className="input-panel">
+            <div className="input-card">
+              <label className="input-label">
+                <span className="label-num">01</span>
+                the job you're manifesting
+              </label>
+              <textarea
+                className="jd-input"
+                placeholder="paste the job description here. yes, requirements too. especially the ones that say '10 years of experience in a 3-year-old framework'..."
+                value={jd}
+                onChange={(e) => setJd(e.target.value)}
+                rows={12}
               />
-              {file ? (
-                <>
-                  <span className="file-icon">📄</span>
-                  <span className="file-name">{file.name}</span>
-                  <span className="file-change">click to swap · we won't tell</span>
-                </>
+            </div>
+
+            <div className="input-card">
+              <label className="input-label">
+                <span className="label-num">02</span>
+                your resume (it'll be okay)
+              </label>
+              <div
+                className={`dropzone ${dragOver ? "drag-over" : ""} ${file ? "has-file" : ""}`}
+                onClick={() => fileRef.current.click()}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+              >
+                <input
+                  ref={fileRef} type="file" accept=".pdf,.txt"
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFile(e.target.files[0])}
+                />
+                {file ? (
+                  <>
+                    <span className="file-icon">📄</span>
+                    <span className="file-name">{file.name}</span>
+                    <span className="file-change">click to swap · we won't tell</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="upload-icon">📎</span>
+                    <span className="upload-text">drop resume here</span>
+                    <span className="upload-sub">PDF or TXT · it's seen worse, we promise</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {error && <div className="error-msg">⚠ {error}</div>}
+
+            <button
+              className={`analyze-btn ${loading ? "loading" : ""}`}
+              onClick={analyze}
+              disabled={loading}
+            >
+              {loading ? (
+                <><span className="spinner" />{loadingMsg}</>
               ) : (
-                <>
-                  <span className="upload-icon">📎</span>
-                  <span className="upload-text">drop resume here</span>
-                  <span className="upload-sub">PDF or TXT · it's seen worse, we promise</span>
-                </>
+                <><span>⚡</span> roast my resume (constructively)</>
               )}
-            </div>
+            </button>
+
+            <p className="disclaimer">no resumes are harmed in this process. egos may vary.</p>
           </div>
 
-          {error && <div className="error-msg">⚠ {error}</div>}
-
-          <button
-            className={`analyze-btn ${loading ? "loading" : ""}`}
-            onClick={analyze}
-            disabled={loading}
-          >
-            {loading ? (
-              <><span className="spinner" />{loadingMsg}</>
-            ) : (
-              <><span>⚡</span> roast my resume (constructively)</>
-            )}
-          </button>
-
-          <p className="disclaimer">no resumes are harmed in this process. egos may vary.</p>
-        </div>
-
-        {result && (
-          <div className="results-panel">
-
-            <div className="score-card">
-              <ScoreRing score={result.match_score} />
-              <div className="score-info">
-                <h2 className="score-title">match score</h2>
-                <p className="score-caption">{SCORE_CAPTIONS(result.match_score)}</p>
-                <p className="score-summary">{result.summary}</p>
-              </div>
-            </div>
-
-            <Section title="strengths" joke={SECTION_JOKES.strengths} icon="✦">
-              <ul className="strength-list">
-                {result.strengths?.map((s, i) => (
-                  <li key={i} className="strength-item">
-                    <span className="check">✓</span>{s}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-
-            <Section title="missing keywords" joke={SECTION_JOKES.missing} icon="◈">
-              <div className="tags-wrap">
-                {result.missing_keywords?.map((k, i) => (
-                  <Tag key={i} text={k} type="missing" />
-                ))}
-              </div>
-            </Section>
-
-            <Section title="bullet rewrites" joke={SECTION_JOKES.rewrites} icon="✎">
-              {result.improvement_suggestions?.map((s, i) => (
-                <div key={i} className="rewrite-card">
-                  <div className="rewrite-before">
-                    <span className="rewrite-label">before (it's okay)</span>
-                    <p>{s.original}</p>
-                  </div>
-                  <div className="rewrite-arrow">→</div>
-                  <div className="rewrite-after">
-                    <span className="rewrite-label">after (much better)</span>
-                    <p>{s.improved}</p>
-                  </div>
-                  <div className="rewrite-reason">💡 {s.reason}</div>
+          {result && (
+            <div className="results-panel">
+              <div className="score-card">
+                <ScoreRing score={result.match_score} />
+                <div className="score-info">
+                  <h2 className="score-title">match score</h2>
+                  <p className="score-caption">{SCORE_CAPTIONS(result.match_score)}</p>
+                  <p className="score-summary">{result.summary}</p>
                 </div>
-              ))}
-            </Section>
+              </div>
 
-            <Section title="ATS tips" joke={SECTION_JOKES.ats} icon="◎">
-              <ul className="ats-list">
-                {result.ats_tips?.map((t, i) => (
-                  <li key={i} className="ats-item">
-                    <span className="ats-num">{String(i + 1).padStart(2, "0")}</span>{t}
-                  </li>
+              <Section title="strengths" joke={SECTION_JOKES.strengths} icon="✦">
+                <ul className="strength-list">
+                  {result.strengths?.map((s, i) => (
+                    <li key={i} className="strength-item">
+                      <span className="check">✓</span>{s}
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+
+              <Section title="missing keywords" joke={SECTION_JOKES.missing} icon="◈">
+                <div className="tags-wrap">
+                  {result.missing_keywords?.map((k, i) => (
+                    <Tag key={i} text={k} type="missing" />
+                  ))}
+                </div>
+              </Section>
+
+              <Section title="bullet rewrites" joke={SECTION_JOKES.rewrites} icon="✎">
+                {result.improvement_suggestions?.map((s, i) => (
+                  <div key={i} className="rewrite-card">
+                    <div className="rewrite-before">
+                      <span className="rewrite-label">before (it's okay)</span>
+                      <p>{s.original}</p>
+                    </div>
+                    <div className="rewrite-arrow">→</div>
+                    <div className="rewrite-after">
+                      <span className="rewrite-label">after (much better)</span>
+                      <p>{s.improved}</p>
+                    </div>
+                    <div className="rewrite-reason">💡 {s.reason}</div>
+                  </div>
                 ))}
-              </ul>
-            </Section>
+              </Section>
 
-            <div className="footer-joke">
-              you've made it this far. that's more than most. go apply. 🚀
+              <Section title="ATS tips" joke={SECTION_JOKES.ats} icon="◎">
+                <ul className="ats-list">
+                  {result.ats_tips?.map((t, i) => (
+                    <li key={i} className="ats-item">
+                      <span className="ats-num">{String(i + 1).padStart(2, "0")}</span>{t}
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+
+              <div className="footer-joke">
+                you've made it this far. that's more than most. go apply. 🚀
+              </div>
             </div>
+          )}
 
-          </div>
-        )}
+          {!result && !loading && (
+            <div className="empty-state">
+              <div className="empty-icon">◈</div>
+              <p>{emptyJoke}</p>
+              <span>paste JD + upload resume → hit the button</span>
+              <span className="empty-sub">powered by Gemini AI · built by someone also job hunting</span>
+            </div>
+          )}
+        </main>
+      )}
 
-        {!result && !loading && (
-          <div className="empty-state">
-            <div className="empty-icon">◈</div>
-            <p>{emptyJoke}</p>
-            <span>paste JD + upload resume → hit the button</span>
-            <span className="empty-sub">powered by Claude AI · built by someone also job hunting</span>
-          </div>
-        )}
-      </main>
+      {/* Jobs Tab */}
+      {activeTab === "jobs" && (
+        <main className="main" style={{ gridTemplateColumns: "1fr" }}>
+          <Jobs />
+        </main>
+      )}
 
       <footer className="footer">
         Built with React · Flask · Gemini AI · Docker · Terraform · AWS · and a concerning amount of coffee
